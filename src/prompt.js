@@ -49,7 +49,7 @@ function flushData(fatigueLevel) {
     eyeWidenessData = [];
 }
 
-let promptInterval = 1000 * 30; // 3 minutes
+let promptInterval = 1000 * 60; // every minute
 let prevPromptVal = -1;
 
 displayPrompt();
