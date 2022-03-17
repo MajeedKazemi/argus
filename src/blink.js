@@ -1,3 +1,4 @@
+import {sendBlinkData, sendEyeWidenessData} from "./prompt"
 import * as faceLandmarksDetection from '@tensorflow-models/face-landmarks-detection';
 import * as tf from '@tensorflow/tfjs-core';
 import '@tensorflow/tfjs-backend-webgl';
@@ -102,6 +103,9 @@ function isVoluntaryBlink(blinkDetected) {
   return false;
 }
 
+let eyeDataFrequency = 10; // 10 events per second
+let lastEyeData = 0;
+
 async function renderPrediction() {
   if (rendering) {
     const predictions = await model.estimateFaces({
@@ -113,6 +117,7 @@ async function renderPrediction() {
 
     if (predictions.length > 0) {
       predictions.forEach((prediction) => {
+        
         // NOTE: Error in docs, rightEyeLower0 is mapped to rightEyeUpper0 and vice-versa
         let lowerRight = prediction.annotations.rightEyeUpper0;
         let upperRight = prediction.annotations.rightEyeLower0;
@@ -120,8 +125,16 @@ async function renderPrediction() {
         // TODO: log this prediction
         let lowerLeft = prediction.annotations.leftEyeUpper0;
         let upperLeft = prediction.annotations.leftEyeLower0;
+
         const leftEAR = getEAR(upperLeft, lowerLeft);
 
+        if (lastEyeData === 0) {
+          lastEyeData = Date.now();
+      } else if (lastEyeData + (1000 / eyeDataFrequency) < Date.now()) {
+          lastEyeData = Date.now();
+          sendEyeWidenessData(leftEAR, rightEAR);
+      }
+      
         let blinked = leftEAR <= EAR_THRESHOLD && rightEAR <= EAR_THRESHOLD;
         if (blinked) {
           updateBlinkRate();
@@ -134,6 +147,7 @@ async function renderPrediction() {
           longBlink: isVoluntaryBlink(blinked),
           rate: blinkRate,
         };
+
       });
     }
   }
@@ -157,8 +171,7 @@ const updateModelStatus = () => {
   }
 };
 
-const videoElement = document.querySelector('webcam');
-
+const videoElement = document.getElementById('webcam');
 
 var raf;
 const init = async () => {
@@ -171,11 +184,8 @@ const init = async () => {
     let result = await blink.getBlinkPrediction();
     updateModelStatus();
 
-    if (result) {
-     
-      if (result.longBlink) {
-        console.log("BLINK")
-      }
+    if (result && (result.left || result.right || result.blink)) {
+      sendBlinkData(result.left, result.right, result.blink);
     }
     raf = requestAnimationFrame(predict);
   };

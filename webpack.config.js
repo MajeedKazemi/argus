@@ -36,24 +36,6 @@ const config = {
       path.resolve('./node_modules')
     ]
   },
-  devServer: {
-    contentBase: __dirname + '/public',
-    compress: true,
-    port: 9000,
-    open: true,
-    stats: {
-        assets: false,
-        children: false,
-        chunks: false,
-        chunkModules: false,
-        colors: true,
-        entrypoints: false,
-        hash: false,
-        modules: false,
-        timings: false,
-        version: false,
-    }
-  },
   watch: false,
   devtool: 'source-map',
 };
