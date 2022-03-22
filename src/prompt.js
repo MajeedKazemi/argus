@@ -75,7 +75,7 @@ function displayPrompt() {
     promptSlider.type = 'range';
     promptSlider.min = 0;
     promptSlider.max = 5;
-    promptSlider.value = prevPromptVal == -1 ? 0 : prevPromptVal;
+    promptSlider.value = 0;
     promptSlider.step = 1;
 
     const submitButton = document.createElement('button');
