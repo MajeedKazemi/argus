@@ -28,7 +28,7 @@ export function sendEyeWidenessData(leftEAR, rightEAR) {
 
 function flushData(fatigueLevel) {
     var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
-        "fatigueLevel" : fatigueLevel,
+        "fatigueLevel" : [String(Date.now()), fatigueLevel],
         "mouseMoveData" : mouseMoveData,
         "mouseClickData" : mouseClickData,
         "keyPressData" : keyPressData,
@@ -89,7 +89,7 @@ function displayPrompt() {
         flushData(promptSlider.value);
 
         // the first submit starts the whole app's data capturing process
-        setInterval(displayPrompt, promptInterval)
+        setTimeout(displayPrompt, promptInterval)
 
         prompt.remove();
     }
